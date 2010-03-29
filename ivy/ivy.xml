@@ -1,11 +1,11 @@
 <ivy-module version="1.0" xmlns:e="http://ant.apache.org/ivy/extra">
-  <info organisation="com.example"
-    module="echod"
+  <info organisation="com.hermes"
+    module="hermesd"
     revision="1.0"
-    e:buildpackage="com.example.echod"
-    e:testclass="com.example.echod.TestRunner"
-    e:jarclassname="com.example.echod.Main"
-    e:thriftpackage="com.example.echod.gen"
+    e:buildpackage="com.hermes.hermesd"
+    e:testclass="com.hermes.hermesd.TestRunner"
+    e:jarclassname="com.hermes.hermesd.Main"
+    e:thriftpackage="com.hermes.hermesd.gen"
   />
 
   <configurations>
@@ -28,5 +28,13 @@
     <dependency org="net.lag" name="configgy" rev="1.4" />
     <dependency org="commons-logging" name="commons-logging" rev="1.1" />
     <dependency org="commons-lang" name="commons-lang" rev="2.2" />
+    <dependency org="com.twitter" name="ostrich" rev="1.0" conf="*" /> <!--auto-->
+    <dependency org="thrift" name="libthrift" rev="751142" conf="*" /> <!--auto-->
+    <dependency org="org.jmock" name="jmock" rev="2.4.0" conf="test->*" /> <!--auto-->
+    <dependency org="org.hamcrest" name="hamcrest-all" rev="1.1" conf="test->*" /> <!--auto-->
+    <dependency org="cglib" name="cglib" rev="2.1_3" conf="test->*" /> <!--auto-->
+    <dependency org="asm" name="asm" rev="1.5.3" conf="test->*" /> <!--auto-->
+    <dependency org="org.objenesis" name="objenesis" rev="1.1" conf="test->*" /> <!--auto-->
+    <dependency org="com.twitter" name="xrayspecs" rev="1.0.7" conf="*" /> <!--auto-->
   </dependencies>
 </ivy-module>

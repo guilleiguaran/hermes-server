@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- CONFIG: change example and description to fit your project -->
-<project name="echod" default="package" xmlns:ivy="antlib:org.apache.ivy.ant">
-  <description>sample project</description>
+<project name="hermesd" default="package" xmlns:ivy="antlib:org.apache.ivy.ant">
+  <description>Minimal Path-finding using Scala for processing and CassandraDB for storage</description>
 
   <!-- use the git revision for the tarball name, instead of the version number: -->
   <property name="dist.build_integration" value="true" />
@@ -9,7 +9,7 @@
   <property name="ivy.settings.file" value="${basedir}/ivy/ivysettings.xml" />
   <import file="${basedir}/ant/bootstrap.xml" />
 
-  <property name="install.dir" location="/usr/local/example" />
+  <property name="install.dir" location="/usr/local/hermesd" />
   <target name="install" depends="package">
     <mkdir dir="${install.dir}" />
     <copy todir="${install.dir}">

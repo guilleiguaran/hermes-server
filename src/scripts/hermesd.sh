@@ -1,12 +1,12 @@
 #!/bin/sh
 #
-# example init.d script.
+# hermesd init.d script.
 #
 # All java services require the same directory structure:
 #   /opt/local/$APP_NAME-$VERSION
 #   /var/log/$APP_NAME (chown daemon, chmod 775)
 
-APP_NAME="example"
+APP_NAME="hermesd"
 VERSION="1.0"
 APP_HOME="/opt/local/$APP_NAME/current"
 AS_USER="daemon"

@@ -25,8 +25,8 @@ You can run the server locally by using the executable jar:
 **Note:** The server need permissions to write logs in /var/log, you can create /var/log/hermesd and add read/write permissions to the user thar runs hermes or run server as root user.
 
 ## Authors
-* Luis Porras <lporras@uninorte.edu.co>
  * Juan Carlos Berrio <jcberrio@uninorte.edu.co>
+ * Luis Porras <lporras@uninorte.edu.co>
  * Lacides Charris <lacidesc@uninorte.edu.co>
  * Guillermo Iguaran <guillermoi@uninorte.edu.co>
  

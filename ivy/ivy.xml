@@ -1,0 +1,32 @@
+<ivy-module version="1.0" xmlns:e="http://ant.apache.org/ivy/extra">
+  <info organisation="com.example"
+    module="echod"
+    revision="1.0"
+    e:buildpackage="com.example.echod"
+    e:testclass="com.example.echod.TestRunner"
+    e:jarclassname="com.example.echod.Main"
+    e:thriftpackage="com.example.echod.gen"
+  />
+
+  <configurations>
+    <conf name="bootstrap" visibility="private" description="load scala compiler and libraries" />
+    <conf name="default" description="normal build" />
+    <conf name="test" extends="default" visibility="private" description="build and run tests" />
+  </configurations>
+
+  <publications>
+    <artifact />
+    <artifact type="pom" />
+  </publications>
+
+  <dependencies>
+    <dependency org="org.scala-lang" name="scala-compiler" rev="2.7.7" />
+    <dependency org="org.scala-lang" name="scala-library" rev="2.7.7" />
+    <dependency org="org.scala-tools.testing" name="specs" rev="1.6.1" conf="test->*" />
+    <dependency org="org.scala-tools" name="vscaladoc" rev="1.1-md-3" conf="bootstrap->*" />
+
+    <dependency org="net.lag" name="configgy" rev="1.4" />
+    <dependency org="commons-logging" name="commons-logging" rev="1.1" />
+    <dependency org="commons-lang" name="commons-lang" rev="2.2" />
+  </dependencies>
+</ivy-module>

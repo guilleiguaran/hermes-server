@@ -26,8 +26,7 @@ You can run the server locally by using the executable jar:
 
 ## Authors
  * Juan Carlos Berrio <jcberrio@uninorte.edu.co>
- * Luis Porras <lporras@uninorte.edu.co>
  * Lacides Charris <lacidesc@uninorte.edu.co>
  * Guillermo Iguaran <guillermoi@uninorte.edu.co>
- 
+ * Luis Porras <lporass@uninorte.edu.co> 
 

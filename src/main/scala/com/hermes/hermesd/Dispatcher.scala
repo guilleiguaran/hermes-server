@@ -1,5 +1,7 @@
 package com.hermes.hermesd
 
+import scala.actors.Actor
+import scala.actors.Actor._
 import scala.collection.mutable.{Map, ListBuffer}
 import java.util.Random
 import net.lag.configgy.{Configgy, RuntimeEnvironment}

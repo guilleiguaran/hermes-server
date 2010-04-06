@@ -1,11 +1,13 @@
 package com.hermes.hermesd
 
+import scala.actors.Actor
+import scala.actors.Actor._
 import com.hermes.hermesd.Connection
 import com.hermes.hermesd.Dispatcher
 
 case class Inactive(worker: Worker)
 
-class Worker(id: Int, dispatcher: Dispatcher) extends Actor{
+class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
 	
 	def act()
 	{
@@ -14,7 +16,7 @@ class Worker(id: Int, dispatcher: Dispatcher) extends Actor{
 			
 			react{
 				
-				case => Connection(socket, id)
+				case Connection(socket, id) =>
 				//handle client
 				socket.close()
 				dispatcher ! Inactive(this)

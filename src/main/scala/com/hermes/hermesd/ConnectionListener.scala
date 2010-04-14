@@ -15,9 +15,10 @@ object ConnectionListener {
 		val dispatcher = new Dispatcher()
         dispatcher.start()
 		var i = 0
-
+		
+		log.info("Waiting for connection.")
+		
 		while (true){
-			log.info("Waiting for connection.")
 			val client = socket.accept()
 			log.info("Accepted connection #"+i)
 			i += 1

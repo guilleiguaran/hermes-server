@@ -14,7 +14,7 @@ class Dispatcher extends Actor{
 	val activeWorkers = Map[Int, Worker]()
 	val rnd = new Random()
 
-	for(i<-1 to 100){
+	for(i<-1 to 1000){
 		val worker = new Worker(i, this)
 		worker.start()
 		inactiveWorkers += worker
@@ -27,8 +27,8 @@ class Dispatcher extends Actor{
 			react{
 
 				case Inactive(worker) =>
-				activeWorkers -= worker.id
-				inactiveWorkers += worker
+				 activeWorkers -= worker.id
+				 inactiveWorkers += worker
 
 				case conn: Connection =>
 

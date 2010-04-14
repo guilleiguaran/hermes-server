@@ -17,15 +17,27 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
 			react{
 				
 				case Connection(socket, id) =>
-				//handle client
-				socket.close()
-				dispatcher ! Inactive(this)
+				
+					handle(socket)
+					socket.close()
+					dispatcher ! Inactive(this)
 				
 			}
 			
 		}
 		
 	}
+	
+	def handle(socket: Socket) =
+    {
+        val os = socket.getOutputStream
+        val writer = new OutputStreamWriter(os)
+
+        val is = socket.getInputStream
+        val reader = new LineNumberReader(new InputStreamReader(is))
+
+        readInput(reader, writer)
+    }
 	
 	
 	

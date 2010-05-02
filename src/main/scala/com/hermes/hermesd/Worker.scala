@@ -48,7 +48,28 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
             log.info("Action: ruta")
             val start = msg(2)
             val end = msg(3)
-            val httpresponse = composeHTTPResponse(start + " " + end)
+			/*
+				Modify this segment to execute algorithm and get coordLats and coordLons for the algorithm
+			*/
+			var coordLats = new ArrayList[String]
+			var coordLons = new ArrayList[String]
+			coordLats.add(start.split("_")(0))
+			coordLats.add(end.split("_")(0))
+			coordLons.add(start.split("_")(1))
+			coordLons.add(end.split("_")(1))			
+			/*
+				End Segment
+			*/
+			
+			var response = "{\"coordinates\": ["
+			
+			for(i<-0 to coordLats.size()-2){
+				response = response + "{\"lat\": \""+ coordLats.get(i) +"\", \"lon\": \""+ coordLons.get(i) +"\"},"
+			}
+			response = response + "{\"lat\": \""+ coordLats.get(coordLats.size()-1) +"\", \"lon\": \""+ coordLons.get(coordLats.size()-1) +"\"}"
+			response = response + "]}"
+			
+            val httpresponse = composeHTTPResponse(response)
             writer.write(httpresponse.getBytes())
             writer.flush()
         }else{

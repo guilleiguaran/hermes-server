@@ -2,6 +2,7 @@ package com.hermes.hermesd
 
 import scala.actors.Actor
 import scala.actors.Actor._
+import java.util.ArrayList
 import java.net.Socket
 import java.io.DataOutputStream
 import java.io.DataInputStream

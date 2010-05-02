@@ -16,7 +16,7 @@ object ConnectionListener {
         dispatcher.start()
 		var i = 0
 		
-		log.info("Waiting for connection.")
+		log.info("Waiting for connection on port "+port)
 		
 		while (true){
 			val client = socket.accept()

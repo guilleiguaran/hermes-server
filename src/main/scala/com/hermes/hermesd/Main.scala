@@ -3,7 +3,6 @@ package com.hermes.hermesd
 import com.twitter.ostrich.{BackgroundProcess, Server, ServerInterface, Stats}
 import net.lag.configgy.{Configgy, RuntimeEnvironment}
 import net.lag.logging.Logger
-import com.hermes.hermesd.ConnectionListener
 
 object Main extends ServerInterface {
 	val log = Logger.get(getClass.getName)

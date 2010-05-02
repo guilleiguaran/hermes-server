@@ -5,6 +5,8 @@ import scala.actors.Actor._
 import com.hermes.hermesd.Connection
 import com.hermes.hermesd.Dispatcher
 import java.net.Socket
+import java.io.DataOutputStream
+import java.io.DataInputStream
 
 case class Inactive(worker: Worker)
 
@@ -36,7 +38,7 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
         val writer = new DataOutputStream(os)
 
         val is = socket.getInputStream
-        val reader = new InputStreamReader(is)
+        val reader = new DataInputStream(is)
 
         val entrada = reader.readLine()
         val msj = entrada.split(" ")(1).split("/")
@@ -55,7 +57,7 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
     }
     def composeHTTPResponse(mensaje: String): String = {
         var response = "HTTP/1.1 200 OK\n"
-        response = response + "Content-type: text/json\n"
+        response = response + "Content-type: text/html\n"
         response = response + "\r\n" + mensaje
         response
     }	

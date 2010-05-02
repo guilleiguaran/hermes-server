@@ -1,5 +1,7 @@
 package com.hermes.hermesd.algorithm
 
+import java.util.ArrayList
+
 class Node(var Coordinates: List[Int]){
 
     var costsAdjacents = new ArrayList[Double]();
@@ -12,7 +14,7 @@ class Node(var Coordinates: List[Int]){
     def aString(complet: Boolean): String = {
         if(complet == true){
             "(gScore, hScore, fScore) = (" + gScore + "," + hScore + "," + fScore + ") --- " +
-            "(x,y) = (" + Coordinates(0) + "," + Coordenates(1) + ")"
+            "(x,y) = (" + Coordinates(0) + "," + Coordinates(1) + ")"
         }else{
             "(" + Coordinates(0) + "," + Coordinates(1) + ")"    
         }

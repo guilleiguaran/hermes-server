@@ -4,3 +4,4 @@ dist
 nbproject*
 manifest.mf*
 *DS_Store*
+*.log

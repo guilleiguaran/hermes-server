@@ -10,35 +10,54 @@ case class Inactive(worker: Worker)
 
 class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
 	
-	def act()
-	{
+    def act()
+    {
 		
-		loop{
+        loop{
 			
-			react{
+            react{
 				
-				case Connection(socket, id) =>
+                case Connection(socket, id) =>
 				
-					handle(socket)
-					socket.close()
-					dispatcher ! Inactive(this)
+                    handle(socket)
+                    socket.close()
+                    dispatcher ! Inactive(this)
 				
-			}
+            }
 			
-		}
+        }
 		
-	}
-	
-	def handle(socket: Socket): Unit =
+    }
+
+    
+    def handle(socket: Socket): Unit =
     {
         val os = socket.getOutputStream
-        //val writer = new OutputStreamWriter(os)
+        val writer = new DataOutputStream(os)
 
         val is = socket.getInputStream
-        //val reader = new LineNumberReader(new InputStreamReader(is))
-		()
+        val reader = new InputStreamReader(is)
+
+        val entrada = reader.readLine()
+        val msj = entrada.split(" ")(1).split("/")
+        val accion = msj(1)
+        if(accion == "ruta"){
+            println("Esta pidiendo una ruta")
+            val inicio = msj(2)
+            val fin = msj(3)
+            val httpresponse = composeHTTPResponse(inicio + " " + fin)
+            writer.write(httpresponse.getBytes())
+            writer.flush()
+        }else{
+            println("Accion no soportada")
+            
+        }
     }
-	
-	
-	
+    def composeHTTPResponse(mensaje: String): String = {
+        var response = "HTTP/1.1 200 OK\n"
+        response = response + "Content-type: text/json\n"
+        response = response + "\r\n" + mensaje
+        response
+    }	
+
 }

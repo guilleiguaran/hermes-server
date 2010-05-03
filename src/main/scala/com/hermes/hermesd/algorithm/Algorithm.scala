@@ -1,9 +1,13 @@
-//package com.hermes.hermesd.algorithm
+package com.hermes.hermesd.algorithm
 
 import java.util.ArrayList
 import scala.collection.mutable.ArrayBuffer
+import java.lang.Comparable
+import java.util.PriorityQueue
+import java.util.HashSet
 
-class Node(var Coordinates: List[Int]){
+
+class Node(var Coordinates: List[Int]) extends Comparable[Node]{
 
     var costsAdjacents = new ArrayList[Double]();
     var nodesAdjacents = new ArrayList[Node]()
@@ -11,6 +15,8 @@ class Node(var Coordinates: List[Int]){
     var hScore = 0.0
     var fScore = 0.0
     var cameFrom = List(-1,-1)
+	
+    def compareTo(other: Node): Int = { fScore.compare(other.fScore) }
 
     def aString(complet: Boolean): String = {
         if(complet == true){
@@ -36,38 +42,30 @@ class AStar(var minCost: Double, var nodes: ArrayBuffer[ArrayBuffer[Node]], var 
    
     def buildPath(current: Node): String = {
         if (current.cameFrom != List(-1,-1)){
-            //println(actual.aString(false))
             return buildPath(nodes(current.cameFrom(0))(current.cameFrom(1))) + current.aString(false)
         }else{
-            //println(actual.aString(false))
             return current.aString(false)
         }   
     }
     
     def calculatePath(start: List[Int], goal: List[Int]): String = {
-        var closedset = new ArrayList[Node]()
-        var openset = new ArrayList[Node]()
-        nodes(start(0))(start(1)).asInstanceOf[Node].gScore_=(0.0)
+        var closedset = new HashSet[Node]()
+ 
+	var openset = new PriorityQueue[Node]()
+        
+	nodes(start(0))(start(1)).asInstanceOf[Node].gScore_=(0.0)
         nodes(start(0))(start(1)).asInstanceOf[Node].hScore_=(heuristicStimateOfDistance(start, goal))
         nodes(start(0))(start(1)).asInstanceOf[Node].fScore_=(heuristicStimateOfDistance(start, goal))
         openset.add(nodes(start(0))(start(1)))
         
         while(openset.isEmpty() == false){
-            //println(openset.size)
-            //println(closedset.size)
-            //println("-----------------------")
-            var x:Node = {
-                var minNode = new Node(List(-1,-1))
-                minNode.fScore_=(Double.MaxValue)
-                for(i<- 0 to openset.size - 1 if openset.get(i).asInstanceOf[Node].fScore < minNode.fScore){
-                    minNode = openset.get(i)
-                }
-                minNode
-            }
-            if(x.Coordinates == goal){
+            println(openset.size)
+            println(closedset.size)
+            println("-----------------------")
+            var x:Node = openset.poll()
+    	    if(x.Coordinates == goal){
                 return buildPath(nodes(goal(0))(goal(1)))
             }else{
-                openset.remove(x)
                 closedset.add(x)
                 /*
                 El nodo x debe tener un metodo que leyendo la informacion de la base de datos
@@ -112,22 +110,10 @@ class AStar(var minCost: Double, var nodes: ArrayBuffer[ArrayBuffer[Node]], var 
         }
         "No route"
     }
-            
-}
-        
-        
 }
 
-
-object Main {
-    /**
-     * @param args the command line arguments
-     */
-    def main(args: Array[String]) :Unit = {
-        var numCalles = 100
-        var numCarreras = 100
+   def randomize(numCalles: Int, numCarreras: Int, minCost: Double, maxCost: Double): ArrayBuffer[ArrayBuffer[Node]] = {
         var nodos = new ArrayBuffer[ArrayBuffer[Node]]()
-        var minCost = 20.0
         for(x <- 0 to numCalles - 1){
             var fila = new ArrayBuffer[Node]()
             for(y <- 0 to numCarreras - 1){
@@ -138,29 +124,19 @@ object Main {
         for(x <- 0 to numCalles - 1 ; y <- 0 to numCarreras - 1){
             var a:Node = nodos(x)(y)
             if(x != 0){
-                a.addAdjacent(nodos(x - 1)(y),Math.random*(100 - minCost) + minCost)
+                a.addAdjacent(nodos(x - 1)(y),Math.random*(maxCost - minCost) + minCost)
             }
             if(x != numCalles - 1){
-                a.addAdjacent(nodos(x + 1)(y), Math.random*(100 - minCost) + minCost)
+                a.addAdjacent(nodos(x + 1)(y), Math.random*(maxCost - minCost) + minCost)
             }
             if(y != 0){
-                a.addAdjacent(nodos(x)(y-1),Math.random*(100 - minCost) + minCost)
+                a.addAdjacent(nodos(x)(y-1),Math.random*(maxCost - minCost) + minCost)
             }
             if(y != numCarreras - 1){
-                a.addAdjacent(nodos(x)(y+1),Math.random*(100 - minCost) + minCost)
+                a.addAdjacent(nodos(x)(y+1),Math.random*(maxCost - minCost) + minCost)
             }
         }
-        var start = List((Math.random * numCalles).asInstanceOf[Int],(Math.random * numCarreras).asInstanceOf[Int] )
-        var goal = List((Math.random * numCalles).asInstanceOf[Int],(Math.random * numCarreras).asInstanceOf[Int] )
-        println("Inicio " +  nodos(start(0))(start(1)).aString(false))
-        println("Meta " +nodos(goal(0))(goal(1)).aString(false))
-        var A = new AStar(minCost, nodos, numCalles, numCarreras)
-        var output = A.calculatePath(start, goal)
-        println(output)
-              
+  	nodos
+  } 
   
-    }
-
-}
-
 

@@ -61,7 +61,7 @@ class AStar(var minCost: Double){
     }
 
     def buildPath(current: Node, closedset: HashMap[String, Node]): String = {
-        if (current.cameFrom != "-1"){			return buildPath(closedset(current.cameFrom), closedset)  + current.aString(false)
+        if (current.cameFrom != "-1"){			return buildPath(closedset(current.cameFrom), closedset)  + ";" +current.aString(false)
         }else{
             return current.aString(false)
         }   
@@ -79,13 +79,15 @@ class AStar(var minCost: Double){
         openset.add(new Node(startId))
         
         while(openset.isEmpty() == false){
-	    //println("-----------------------")
-	    //println(openset.size)
-            //println(closedset.size)
+	    println("-----------------------")
+	    println(openset.size)
+            println(closedset.size)
             var x:Node = openset.poll()
-	    //println("El menor es " + x.dbId)
+	    println("El menor es " + x.dbId)
     	    if(x.dbId == endId){
-                return buildPath(x,closedset)
+                //return buildPath(x,closedset)
+		closedset(x.dbId) = x
+		()
             }else{
                 closedset(x.dbId) = x
                 /*
@@ -129,7 +131,8 @@ class AStar(var minCost: Double){
                 }
             }
         }
-        "No route"
+	println("Termino el ciclo")
+        return buildPath(closedset(endId),closedset)
     }
 }
 

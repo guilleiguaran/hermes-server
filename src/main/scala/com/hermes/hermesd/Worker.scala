@@ -8,6 +8,7 @@ import java.io.DataOutputStream
 import java.io.DataInputStream
 import net.lag.logging.Logger
 
+import com.hermes.hermesd.algorithm._
 
 case class Inactive(worker: Worker)
 
@@ -55,10 +56,16 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
 			*/
 			var coordLats = new ArrayList[String]
 			var coordLons = new ArrayList[String]
-			coordLats.add(start.split("_")(0))
-			coordLats.add(end.split("_")(0))
-			coordLons.add(start.split("_")(1))
-			coordLons.add(end.split("_")(1))			
+			
+			var a = new AStar(20.0)
+			var hora = 1 // Que sea la hora del servidor
+			var rutaString = a.calculatePath( Map("Lat"->start.split("_")(0),"Lon"-> start.split("_")(1)), Map("Lat"->end.split("_")(0),"Lon"-> end.split("_")(1)),hora) 
+			
+			var rutaList = rutaString.split(";")
+			for(i<-0 to rutaList.size - 1){
+				coordLats.add(rutaList(i).split("_")(0))
+				coordLons.add(rutaList(i).split("_")(1))
+			}
 			/*
 				End Segment
 			*/

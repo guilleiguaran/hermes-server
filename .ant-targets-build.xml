@@ -1,0 +1,13 @@
+check
+clean
+clean-ivy
+clean-jni
+compile
+dist
+docs
+jars
+package
+prepare
+push
+stress
+unit

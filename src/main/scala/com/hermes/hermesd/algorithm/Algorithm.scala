@@ -4,69 +4,90 @@ import java.util.ArrayList
 import scala.collection.mutable.ArrayBuffer
 import java.lang.Comparable
 import java.util.PriorityQueue
-import java.util.HashSet
+import scala.collection.mutable.HashMap  
 
+import com.nodeta.scalandra.serializer.StringSerializer
+import com.nodeta.scalandra._
 
-class Node(var Coordinates: List[Int]) extends Comparable[Node]{
+import scala.collection.mutable.ArrayBuffer
 
-    var costsAdjacents = new ArrayList[Double]();
-    var nodesAdjacents = new ArrayList[Node]()
-    var gScore = 0.0
-    var hScore = 0.0
-    var fScore = 0.0
-    var cameFrom = List(-1,-1)
-	
-    def compareTo(other: Node): Int = { fScore.compare(other.fScore) }
-
-    def aString(complet: Boolean): String = {
-        if(complet == true){
-            "(gScore, hScore, fScore) = (" + gScore + "," + hScore + "," + fScore + ") --- " +
-            "(x,y) = (" + Coordinates(0) + "," + Coordinates(1) + ")"
-        }else{
-            "(" + Coordinates(0) + "," + Coordinates(1) + ")"    
-        }
-    }
-
-    def addAdjacent(node: Node, cost: Double){
-        costsAdjacents.add(cost)
-        nodesAdjacents.add(node)
-    }
-
+object MyConnection{
+    val serialization = new Serialization(
+        StringSerializer,
+        StringSerializer,
+        StringSerializer
+    )
+    val cassandra = new Client(
+        Connection("127.0.0.1", 9160),
+        "Keyspace1",
+        serialization,
+        ConsistencyLevels.one
+    )
 }
 
 
-class AStar(var minCost: Double, var nodes: ArrayBuffer[ArrayBuffer[Node]], var numStreets: Int, var numAvenues: Int){
+class Node(var dbId: String) extends Comparable[Node]{
+    var gScore = 0.0
+    var hScore = 0.0
+    var fScore = 0.0
+    var cameFrom = "-1"
+
+    def compareTo(other: Node): Int = { fScore.compare(other.fScore) }
+    
+    def getNeighbors(): Iterator[String] = { MyConnection.cassandra.SuperColumnFamily("Super1")(dbId).keys }
+    
+    def aString(complet: Boolean): String = {
+        if(complet == true){
+            "(gScore, hScore, fScore) = (" + gScore + "," + hScore + "," + fScore + ") --- " +
+            aString(false)
+        }else{
+          "(" +  MyConnection.cassandra.ColumnFamily("Standard1")(dbId)("Lat") + "_" +  MyConnection.cassandra.ColumnFamily("Standard1")(dbId)("Lon") + ")"   
+        }
+    }
+}
 
 
-    def heuristicStimateOfDistance(a: List[Int], b: List[Int]) = minCost * (Math.abs(a(0) - b(0)) + Math.abs(a(1) - b(1)))
-   
-    def buildPath(current: Node): String = {
-        if (current.cameFrom != List(-1,-1)){
-            return buildPath(nodes(current.cameFrom(0))(current.cameFrom(1))) + current.aString(false)
+class AStar(var minCost: Double){
+
+
+    //def heuristicStimateOfDistance(a: List[Int], b: List[Int]) = minCost * (Math.abs(a(0) - b(0)) + Math.abs(a(1) - b(1)))
+    def heuristicStimateOfDistance(aI : String, bI: String): Double = {
+	//println("Estimando de " + aI + " hasta " + bI)
+
+	var a = MyConnection.cassandra.ColumnFamily("Standard1")(aI)
+	var b = MyConnection.cassandra.ColumnFamily("Standard1")(bI)	
+	var r = minCost * (Math.abs(a("Lat").toDouble - b("Lat").toDouble) + Math.abs(a("Lon").toDouble - b("Lon").toDouble))
+	r
+    }
+
+    def buildPath(current: Node, closedset: HashMap[String, Node]): String = {
+        if (current.cameFrom != "-1"){			return buildPath(closedset(current.cameFrom), closedset)  + current.aString(false)
         }else{
             return current.aString(false)
         }   
     }
     
-    def calculatePath(start: List[Int], goal: List[Int]): String = {
-        var closedset = new HashSet[Node]()
+    def calculatePath(start: Map[String, String], goal: Map[String, String], hora: Int): String = {
+        var closedset = new HashMap[String, Node]()
  
 	var openset = new PriorityQueue[Node]()
-        
-	nodes(start(0))(start(1)).asInstanceOf[Node].gScore_=(0.0)
-        nodes(start(0))(start(1)).asInstanceOf[Node].hScore_=(heuristicStimateOfDistance(start, goal))
-        nodes(start(0))(start(1)).asInstanceOf[Node].fScore_=(heuristicStimateOfDistance(start, goal))
-        openset.add(nodes(start(0))(start(1)))
+        var startId = NearestNeighbor.find(start,0.0001)(0)._1
+	var endId = NearestNeighbor.find(goal,0.0001)(0)._1
+	//println(startId)
+	//println(endId)
+	//Console.readLine
+        openset.add(new Node(startId))
         
         while(openset.isEmpty() == false){
-            println(openset.size)
-            println(closedset.size)
-            println("-----------------------")
+	    //println("-----------------------")
+	    //println(openset.size)
+            //println(closedset.size)
             var x:Node = openset.poll()
-    	    if(x.Coordinates == goal){
-                return buildPath(nodes(goal(0))(goal(1)))
+	    //println("El menor es " + x.dbId)
+    	    if(x.dbId == endId){
+                return buildPath(x,closedset)
             }else{
-                closedset.add(x)
+                closedset(x.dbId) = x
                 /*
                 El nodo x debe tener un metodo que leyendo la informacion de la base de datos
                 defina una coleccion de sus nodos adyacentes, y regrese ya sea una coleccion
@@ -78,12 +99,12 @@ class AStar(var minCost: Double, var nodes: ArrayBuffer[ArrayBuffer[Node]], var 
                 y el costo para llegar a el, y devolver una coleccion (o su iterador) de instancias
                 de esa clase
                 */
-                var i = x.nodesAdjacents.iterator();
-                var j = x.costsAdjacents.iterator();
-                while(i.hasNext()) {
-                    var currentNode:Node = i.next()
-                    var dist:Double = j.next()
-                    if(closedset.contains(currentNode) == false){
+                var i = x.getNeighbors();
+                //var j = x.costsAdjacents.iterator();
+                while(i.hasNext) {
+                    var currentNode:Node = new Node(i.next)
+                    var dist:Double = MyConnection.cassandra.SuperColumnFamily("Super1")(x.dbId.toString)(currentNode.dbId.toString)(hora.toString).toDouble
+                    if(closedset.contains(currentNode.dbId) == false){
                         var tgScore = x.gScore + dist
                         var tIsBetter = false
                         if(openset.contains(currentNode) == false){
@@ -97,9 +118,9 @@ class AStar(var minCost: Double, var nodes: ArrayBuffer[ArrayBuffer[Node]], var 
                             }
                         }
                         if(tIsBetter){
-                            currentNode.cameFrom_=(List(x.Coordinates(0),x.Coordinates(1)))
+                            currentNode.cameFrom_=(x.dbId)
                             currentNode.gScore_=(tgScore)
-                            currentNode.hScore_=(heuristicStimateOfDistance(currentNode.Coordinates, goal))
+                            currentNode.hScore_=(heuristicStimateOfDistance(x.dbId, currentNode.dbId))
                             currentNode.fScore_=(currentNode.gScore + currentNode.hScore)
                         }
                     }
@@ -111,32 +132,4 @@ class AStar(var minCost: Double, var nodes: ArrayBuffer[ArrayBuffer[Node]], var 
         "No route"
     }
 }
-
-   def randomize(numCalles: Int, numCarreras: Int, minCost: Double, maxCost: Double): ArrayBuffer[ArrayBuffer[Node]] = {
-        var nodos = new ArrayBuffer[ArrayBuffer[Node]]()
-        for(x <- 0 to numCalles - 1){
-            var fila = new ArrayBuffer[Node]()
-            for(y <- 0 to numCarreras - 1){
-                fila += new Node(List(x,y))
-            }
-            nodos += fila
-        }
-        for(x <- 0 to numCalles - 1 ; y <- 0 to numCarreras - 1){
-            var a:Node = nodos(x)(y)
-            if(x != 0){
-                a.addAdjacent(nodos(x - 1)(y),Math.random*(maxCost - minCost) + minCost)
-            }
-            if(x != numCalles - 1){
-                a.addAdjacent(nodos(x + 1)(y), Math.random*(maxCost - minCost) + minCost)
-            }
-            if(y != 0){
-                a.addAdjacent(nodos(x)(y-1),Math.random*(maxCost - minCost) + minCost)
-            }
-            if(y != numCarreras - 1){
-                a.addAdjacent(nodos(x)(y+1),Math.random*(maxCost - minCost) + minCost)
-            }
-        }
-  	nodos
-  } 
-  
 

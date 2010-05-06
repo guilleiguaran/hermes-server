@@ -1,7 +1,7 @@
 package com.hermes.hermesd.algorithm
 
 import com.nodeta.scalandra.serializer.StringSerializer
-import com.nodeta.scalandra._
+import nodeta.scalandra._
 import scala.collection.mutable.ArrayBuffer
 
 object NearestNeighbor{

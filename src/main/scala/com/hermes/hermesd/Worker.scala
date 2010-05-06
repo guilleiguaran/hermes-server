@@ -8,6 +8,7 @@ import java.io.DataOutputStream
 import java.io.DataInputStream
 import net.lag.logging.Logger
 
+
 case class Inactive(worker: Worker)
 
 class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{

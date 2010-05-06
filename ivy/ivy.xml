@@ -29,12 +29,16 @@
     <dependency org="commons-logging" name="commons-logging" rev="1.1" />
     <dependency org="commons-lang" name="commons-lang" rev="2.2" />
     <dependency org="com.twitter" name="ostrich" rev="1.0" conf="*" /> <!--auto-->
-    <dependency org="thrift" name="libthrift" rev="751142" conf="*" /> <!--auto-->
+    <dependency org="thrift" name="libthrift" rev="r917130" conf="*" /> <!--auto-->
     <dependency org="org.jmock" name="jmock" rev="2.4.0" conf="test->*" /> <!--auto-->
     <dependency org="org.hamcrest" name="hamcrest-all" rev="1.1" conf="test->*" /> <!--auto-->
     <dependency org="cglib" name="cglib" rev="2.1_3" conf="test->*" /> <!--auto-->
     <dependency org="asm" name="asm" rev="1.5.3" conf="test->*" /> <!--auto-->
     <dependency org="org.objenesis" name="objenesis" rev="1.1" conf="test->*" /> <!--auto-->
     <dependency org="com.twitter" name="xrayspecs" rev="1.0.7" conf="*" /> <!--auto-->
+	<dependency org="apache-cassandra" name ="apache-cassandra" rev="0.6.0-rc1" conf="*" />
+	<dependency org="com.nodeta" name="scalandra" rev="0.2.0" conf="*" /> 
+	<dependency org="org.slf4j" name="slf4j-api" rev="1.5.11" conf="*" />
+	<dependency org="org.slf4j" name="slf4j-simple" rev="1.5.11" conf="*" />
   </dependencies>
 </ivy-module>

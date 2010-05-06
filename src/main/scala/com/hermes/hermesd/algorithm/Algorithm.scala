@@ -89,6 +89,7 @@ class AStar(var minCost: Double){
 		closedset(x.dbId) = x
 		()
             }else{
+
                 closedset(x.dbId) = x
                 /*
                 El nodo x debe tener un metodo que leyendo la informacion de la base de datos

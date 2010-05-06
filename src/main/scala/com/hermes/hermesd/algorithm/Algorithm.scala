@@ -41,7 +41,7 @@ class Node(var dbId: String) extends Comparable[Node]{
             "(gScore, hScore, fScore) = (" + gScore + "," + hScore + "," + fScore + ") --- " +
             aString(false)
         }else{
-          "(" +  MyConnection.cassandra.ColumnFamily("Standard1")(dbId)("Lat") + "_" +  MyConnection.cassandra.ColumnFamily("Standard1")(dbId)("Lon") + ")"   
+           MyConnection.cassandra.ColumnFamily("Standard1")(dbId)("Lat") + "_" +  MyConnection.cassandra.ColumnFamily("Standard1")(dbId)("Lon")   
         }
     }
 }

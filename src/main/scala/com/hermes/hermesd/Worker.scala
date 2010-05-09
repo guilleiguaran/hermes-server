@@ -60,7 +60,6 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
 			var a = new AStar(20.0)
 			var hora = 1 // Que sea la hora del servidor
 			var rutaString = a.calculatePath( Map("Lat"->start.split("_")(0),"Lon"-> start.split("_")(1)), Map("Lat"->end.split("_")(0),"Lon"-> end.split("_")(1)),hora) 
-			println(rutaString)
 			var rutaList = rutaString.split(";")
 			for(i<-0 to rutaList.size - 1){
 				coordLats.add(rutaList(i).split("_")(0))

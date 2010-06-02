@@ -71,8 +71,8 @@ class AStar(var minCost: Double){
 		var closedset = new HashMap[String, Node]()
  
 		var openset = new PriorityQueue[Node]()
-        var startId = NearestNeighbor.find(start,0.0001)
-		var endId = NearestNeighbor.find(goal,0.0001)
+        var startId = NearestNeighbor.find(start,0.000001)
+		var endId = NearestNeighbor.find(goal,0.000001)
 
         openset.add(new Node(startId))
         

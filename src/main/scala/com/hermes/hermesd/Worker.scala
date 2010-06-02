@@ -83,6 +83,7 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
     def composeHTTPResponse(message: String): String = {
         var response = "HTTP/1.1 200 OK\n"
         response = response + "Content-type: text/html\n"
+		response = response + "Content-length: " + message.size + "\n"
         response = response + "\r\n" + message
 		log.info(response)
         response

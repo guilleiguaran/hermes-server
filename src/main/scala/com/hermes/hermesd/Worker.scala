@@ -75,10 +75,15 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
             val HttpResponse = composeHTTPResponse(response)
             writer.write(HttpResponse.getBytes())
             writer.flush()
-        }else{
-            log.info("Unsupported action")
-            
         }
+		else if(action == "rutas"){
+        	log.info("Action: rutas") 
+            
+        } 
+		else
+		{
+			log.info("Unsupported action")
+		}
     }
     def composeHTTPResponse(message: String): String = {
         var response = "HTTP/1.1 200 OK\n"

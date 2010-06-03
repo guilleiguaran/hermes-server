@@ -47,7 +47,15 @@ class Node(var dbId: String) extends Comparable[Node]{
 
 
 class AStar(var minCost: Double){
-
+    def getAllNodes(): String = {
+	var t = DataConnection.cassandra.ColumnFamily("Standard1").keys
+	var Salida = ""
+	while(t.hasNext){
+		Salida = Salida + ";" + (new Node(t.next)).aString(false)
+	}
+	Salida
+	
+    } 
 
     //def heuristicStimateOfDistance(a: List[Int], b: List[Int]) = minCost * (Math.abs(a(0) - b(0)) + Math.abs(a(1) - b(1)))
     def heuristicStimateOfDistance(aI : String, bI: String): Double = {
@@ -58,10 +66,11 @@ class AStar(var minCost: Double){
     }
 
     def buildPath(current: Node, closedset: HashMap[String, Node]): String = {
-        if (current.cameFrom != "-1"){	
+	if (current.cameFrom != "-1"){
+			
 			return buildPath(closedset(current.cameFrom), closedset)  + ";" +current.aString(false)
         }
-		else {
+	else {
             return current.aString(false)
         }   
     }
@@ -81,8 +90,7 @@ class AStar(var minCost: Double){
             var x:Node = openset.poll()
     	    if(x.dbId == endId){
                 //return buildPath(x,closedset)
-				closedset(x.dbId) = x
-				()
+				closedset(x.dbId) = x
             }
 			else {
 
@@ -130,7 +138,7 @@ class AStar(var minCost: Double){
                 }
             }
         }
-        return buildPath(closedset(endId),closedset)
+	return buildPath(closedset(endId),closedset)
     }
 }
 

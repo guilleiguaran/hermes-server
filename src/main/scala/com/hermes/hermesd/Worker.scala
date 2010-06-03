@@ -77,9 +77,30 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
             writer.flush()
         }
 		else if(action == "rutas"){
-        	log.info("Action: rutas") 
-            
-        } 
+        		log.info("Action: rutas") 
+			var coordLats = new ArrayList[String]
+			var coordLons = new ArrayList[String]
+			var a = new AStar(20.0)                	
+			var salida = a.getAllNodes()
+			
+			var salidaList = salida.split(";")
+			for(i<-1 to salidaList.size - 1){
+				coordLats.add(salidaList(i).split("_")(0))
+				coordLons.add(salidaList(i).split("_")(1))
+			} 
+			var response = "{\"coordinates\": ["
+			
+			for(i<-0 to coordLats.size()-2){
+				response = response + "{\"lat\": \""+ coordLats.get(i) +"\", \"lon\": \""+ coordLons.get(i) +"\"},"
+			}
+			response = response + "{\"lat\": \""+ coordLats.get(coordLats.size()-1) +"\", \"lon\": \""+ coordLons.get(coordLats.size()-1) +"\"}"
+			response = response + "]}"
+			
+		    val HttpResponse = composeHTTPResponse(response)
+		    writer.write(HttpResponse.getBytes())
+		    writer.flush()
+
+	        } 
 		else
 		{
 			log.info("Unsupported action")

@@ -80,7 +80,7 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
         		log.info("Action: rutas") 
 			var coordLats = new ArrayList[String]
 			var coordLons = new ArrayList[String]
-			var a = new AStar(20.0)                	
+			var a = new AStar(1.0)                	
 			var salida = a.getAllNodes()
 			
 			var salidaList = salida.split(";")

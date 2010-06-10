@@ -48,10 +48,13 @@ class Node(var dbId: String) extends Comparable[Node]{
 
 class AStar(var minCost: Double){
     def getAllNodes(): String = {
-	var t = DataConnection.cassandra.ColumnFamily("Standard1").keys
+	var t = DataConnection.cassandra.ColumnFamily("Standard1").toArray
 	var Salida = ""
-	while(t.hasNext){
-		Salida = Salida + ";" + (new Node(t.next)).aString(false)
+	//while(t.hasNext){
+	//	Salida = Salida + ";" + (new Node(t.next)).aString(false)
+	//}
+	for(i<-0 to t.size -1){
+		Salida = Salida + ";" +  (new Node(t(i)._1)).aString(false)
 	}
 	Salida
 	
@@ -66,6 +69,7 @@ class AStar(var minCost: Double){
     }
 
     def buildPath(current: Node, closedset: HashMap[String, Node]): String = {
+	println(current.dbId)	
 	if (current.cameFrom != "-1"){
 			
 			return buildPath(closedset(current.cameFrom), closedset)  + ";" +current.aString(false)
@@ -80,8 +84,8 @@ class AStar(var minCost: Double){
 		var closedset = new HashMap[String, Node]()
  
 		var openset = new PriorityQueue[Node]()
-        var startId = NearestNeighbor.find(start,0.000001)
-		var endId = NearestNeighbor.find(goal,0.000001)
+        	var startId = NearestNeighbor.find(start,0.0001)
+		var endId = NearestNeighbor.find(goal,0.0001)
 
         openset.add(new Node(startId))
         
@@ -92,7 +96,7 @@ class AStar(var minCost: Double){
                 //return buildPath(x,closedset)
 				closedset(x.dbId) = x
             }
-			else {
+	    else {
 
                 closedset(x.dbId) = x
                 /*

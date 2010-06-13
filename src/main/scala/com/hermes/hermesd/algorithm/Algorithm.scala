@@ -92,7 +92,8 @@ class AStar(var minCost: Double){
 		var dd = Math.acos(dvalue) * radtodeg
 
 		var km = dd*111.302 
-		km/30.0
+		var horas = km/30.0
+		horas*3600
     }
 
     def buildPath(current: Node, closedset: HashMap[String, Node]): String = {

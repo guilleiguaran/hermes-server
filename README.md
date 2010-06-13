@@ -4,6 +4,20 @@ Hermes is a minimal path-finding developed in <a href="http://scala-lang.org">Sc
 
 Hermes is the great messenger of the gods in Greek mythology and additionally as a guide to the Underworld. An Olympian god, he is also the patron of boundaries and of the travelers who travel across them.
 
+## Cassandra Configuration ##
+Add the below lines in Keyspaces section of conf/storage-conf.xml for add Hermes keyspace to Cassandra database 
+
+    <Keyspace Name="Hermes">
+	  <ColumnFamily CompareWith="UTF8Type" Name="Coordenadas" />
+	  <ColumnFamily CompareWith="UTF8Type" Name="Vecinos" />
+	  <ColumnFamily CompareWith="UTF8Type" Name="Intersecciones" />
+      <ColumnFamily CompareWith="UTF8Type" Name="Trafico" CompareSubcolumnsWith="UTF8Type" ColumnType="Super"/>
+	  <ColumnFamily CompareWith="UTF8Type" Name="Restricciones" CompareSubcolumnsWith="UTF8Type" ColumnType="Super"/>
+      <ReplicaPlacementStrategy>org.apache.cassandra.locator.RackUnawareStrategy</ReplicaPlacementStrategy>
+      <ReplicationFactor>1</ReplicationFactor>
+      <EndPointSnitch>org.apache.cassandra.locator.EndPointSnitch</EndPointSnitch>
+    </Keyspace>
+
 ## Build targets
 
 The primary useful build targets are the usual suspects:

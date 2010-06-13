@@ -30,7 +30,7 @@ class Node(var dbId: String) extends Comparable[Node]{
     var fScore = 0.0
     var cameFrom = "-1"
 
-    def compareTo(other: Node): Int = { fScore.compare(other.fScore) }
+    def compareTo(other: Node): Int = { this.fScore.compare(other.fScore) }
     
     def getNeighbors(): Iterator[String] = { DataConnection.cassandra.SuperColumnFamily("Super1")(dbId).keys }
     
@@ -107,18 +107,20 @@ class AStar(var minCost: Double){
     }
     
     def calculatePath(start: Map[String, String], goal: Map[String, String], hora: Int): String = {
-    
-		var closedset = new HashMap[String, Node]()
+        var nodes = new HashMap[String, Node]()
+
+	var closedset = new HashMap[String, Node]()
  
-		var openset = new PriorityQueue[Node]()
-        	var startId = NearestNeighbor.find(start,0.0001)
-		var endId = NearestNeighbor.find(goal,0.0001)
+	var openset = new PriorityQueue[Node]()
+        var startId = NearestNeighbor.find(start,0.0001)
+	var endId = NearestNeighbor.find(goal,0.0001)
 
-//		println("Meta :" + endId)
-//		println("Inicio:" + startId)
-
-        openset.add(new Node(startId))
-        
+//	println("Meta :" + endId)
+//	println("Inicio:" + startId)
+	
+	nodes(startId) = new Node(startId)
+        openset.add(nodes(startId))
+       
         while(openset.isEmpty() == false){
 
             var x:Node = openset.poll()
@@ -138,44 +140,50 @@ class AStar(var minCost: Double){
 	    else {
 
                 closedset(x.dbId) = x
-                /*
-                El nodo x debe tener un metodo que leyendo la informacion de la base de datos
-                defina una coleccion de sus nodos adyacentes, y regrese ya sea una coleccion
-                de los mismos o un iterador sobre ella.
-                Todo el lio ese de la prelacion de las calles puede manejarse en el cuerpo de
-                ese metodo
+    
 
-                Talvez sea buena idea definir una clase envoltorio que encapsule el nodo adyacente 
-                y el costo para llegar a el, y devolver una coleccion (o su iterador) de instancias
-                de esa clase
-                */
                 var i = x.getNeighbors();
 //		println("Expandiendo")
                 //var j = x.costsAdjacents.iterator();
                 while(i.hasNext) {
-                    var currentNode:Node = new Node(i.next)
+	            var currentId = i.next
+		    var currentNode:Node = {
+	  		    if(nodes.contains(currentId)){
+				nodes(currentId)
+			    }else{
+				nodes(currentId) = new Node(currentId)
+				nodes(currentId)
+			    }
+		    }
+
+//                    var currentNode:Node = new Node(i.next)
 //		    println("Hijo " + currentNode.dbId)
                     var dist:Double = DataConnection.cassandra.SuperColumnFamily("Super1")(x.dbId.toString)(currentNode.dbId.toString)(hora.toString).toDouble
 
                     if(closedset.contains(currentNode.dbId) == false){			
                     	var tgScore = x.gScore + dist
                         var tIsBetter = false
+		        
                         if(openset.contains(currentNode) == false){
                             openset.add(currentNode)
                             tIsBetter = true
+//			    println("Primera vez")
                         }
-			else {
-			    println("Ya habia llegado")
+			else{
+//			    println("Ya habia llegado")
                             if(tgScore < currentNode.gScore){
-				println("Este es mejor")
+//				println("Este es mejor")
                                 tIsBetter = true
                             }
 			    else {
-				println("El anterior es mejor")
+//				println("El anterior es mejor")
                                 tIsBetter = false
                             }
-	    		    Console.readLine()
+//			    println(tgScore)
+//			    println(currentNode.gScore)
                         }
+//	    		    Console.readLine()
+
                         if(tIsBetter){
                             currentNode.cameFrom_=(x.dbId)
                             currentNode.gScore_=(tgScore)

@@ -11,8 +11,11 @@ val serialization = new Serialization(
         StringSerializer
 )
 
-val cassandra = new Client(Connection("127.0.0.1", 9160),"Keyspace1", serialization, ConsistencyLevels.one)
+val cassandra = new Client(Connection("127.0.0.1", 9160),"Hermes", serialization, ConsistencyLevels.one)
 
+if(cassandra.ColumnFamily("Intersecciones")("DB")("0").size == 0){
+	cassandra.ColumnFamily("Intersecciones")("DB")("0") = "0"
+}
 
 if (args.length == 0) println("Se necesita enviar el nombre del archivo como argumento")
 else{
@@ -74,8 +77,13 @@ def readNodes(br: BufferedReader){
 				var coordinates = placeMark.substring(iter.start(2),iter.end(2)).split(",") //long,lat,0
 				println(id.toString)
 				println(coordinates.toString)
-				cassandra.ColumnFamily("Standard1")(id.toString)("Lon") = coordinates(0)
-				cassandra.ColumnFamily("Standard1")(id.toString)("Lat") = coordinates(1)
+
+				var innerId = cassandra.ColumnFamily("Intersecciones")("DB")("0").toInt + 1
+				cassandra.ColumnFamily("Intersecciones")("DB")("0") = innerId.toString
+				cassandra.ColumnFamily("Intersecciones")("DB")(innerId.toString) = id
+
+				cassandra.ColumnFamily("Coordenadas")(id.toString)("Lon") = coordinates(0)
+				cassandra.ColumnFamily("Coordenadas")(id.toString)("Lat") = coordinates(1)
 				println("--------------------------------------------------------------------")
 			}
 			placeMark = ""
@@ -121,9 +129,17 @@ def manageLinks(l: Array[String]){
 	println(l.toString)
 	for (i<-0 to l.size -1){
 		val element = l(i).split("-")
-		val f = cassandra.ColumnFamily("Standard1")(element(0))
-		val t = cassandra.ColumnFamily("Standard1")(element(1))
-		
+
+		if(cassandra.ColumnFamily("Vecinos")(element(0)).size == 0){
+			cassandra.ColumnFamily("Vecinos")(element(0))("0") = "0"
+		}
+		var innerId = cassandra.ColumnFamily("Vecinos")(element(0))("0").toInt + 1
+		cassandra.ColumnFamily("Vecinos")(element(0))(innerId.toString) = element(1)
+		cassandra.ColumnFamily("Vecinos")(element(0))("0") = innerId.toString
+
+		val f = cassandra.ColumnFamily("Coordenadas")(element(0))
+		val t = cassandra.ColumnFamily("Coordenadas")(element(1))
+		//vecinos(idnodo) = map(0->cantidaddevecinos,1->idvecinouno,2->idvecinodos,...,...)
 		var dlong = f("Lon").toDouble - t("Lon").toDouble
 
 		var degtorad = 0.01745329
@@ -138,7 +154,7 @@ def manageLinks(l: Array[String]){
 
 		var horas = km/30
 
-		cassandra.SuperColumnFamily("Super1")(element(0))(element(1)) = Map("1" -> (horas*3600).toString)
-		println(element.toString + " = " + cassandra.SuperColumnFamily("Super1")(element(0))(element(1)).toString)		
+		cassandra.SuperColumnFamily("Trafico")(element(0))(element(1)) = Map("1" -> (horas*3600).toString)
+		println(element.toString + " = " + cassandra.SuperColumnFamily("Trafico")(element(0))(element(1)).toString)		
 	}
 }

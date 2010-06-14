@@ -17,7 +17,7 @@ object DataConnection{
     )
     val cassandra = new Client(
         Connection("127.0.0.1", 9160),
-        "Keyspace1",
+        "Hermes",
         serialization,
         ConsistencyLevels.one
     )
@@ -32,7 +32,19 @@ class Node(var dbId: String) extends Comparable[Node]{
 
     def compareTo(other: Node): Int = { this.fScore.compare(other.fScore) }
     
-    def getNeighbors(): Iterator[String] = { DataConnection.cassandra.SuperColumnFamily("Super1")(dbId).keys }
+    def getNeighbors(): java.util.Iterator[String] = { 
+	var vecinos = new ArrayList[String]()
+//	println(dbId)
+	var size = 0	
+	if(DataConnection.cassandra.ColumnFamily("Vecinos")(dbId).size != 0){
+		size = DataConnection.cassandra.ColumnFamily("Vecinos")(dbId)("0").toInt	
+	}
+	
+        for(i<-1 to size){
+		vecinos.add(DataConnection.cassandra.ColumnFamily("Vecinos")(dbId)(i.toString))
+	}
+	vecinos.iterator
+    }
     
     def aString(complete: Boolean): String = {
         if(complete == true){
@@ -40,46 +52,29 @@ class Node(var dbId: String) extends Comparable[Node]{
             aString(false)
         }
 		else {
-           DataConnection.cassandra.ColumnFamily("Standard1")(dbId)("Lat") + "_" +  DataConnection.cassandra.ColumnFamily("Standard1")(dbId)("Lon")   
+           DataConnection.cassandra.ColumnFamily("Coordenadas")(dbId)("Lat") + "_" +  DataConnection.cassandra.ColumnFamily("Coordenadas")(dbId)("Lon")   
         }
     }
 }
 
-/*
-var t = DataConnection.cassandra.ColumnFamily("Standard1").elements
-	var Salida = ""
-	//while(t.hasNext){
-	//	Salida = Salida + ";" + (new Node(t.next)).aString(false)
-	//}
-	while(t.hasNext){
-		Salida = Salida + ";" +  (new Node(t.next._1)).aString(false)
-	}
-	Salida
-*/
 class AStar(var minCost: Double){
     def getAllNodes(): String = {
-	var t = DataConnection.cassandra.ColumnFamily("Standard1").toArray
+
+	var size = DataConnection.cassandra.ColumnFamily("Intersecciones")("DB")("0").toInt
 	var Salida = ""
-	//while(t.hasNext){
-	//	Salida = Salida + ";" + (new Node(t.next)).aString(false)
-	//}
-	for(i<-0 to t.size -1){
-		Salida = Salida + ";" +  (new Node(t(i)._1)).aString(false)
+	for(i<-1 to size){
+		var id = DataConnection.cassandra.ColumnFamily("Intersecciones")("DB")(i.toString)
+		Salida = Salida + ";" + DataConnection.cassandra.ColumnFamily("Coordenadas")(id)("Lat") + "_" +  DataConnection.cassandra.ColumnFamily("Coordenadas")(id)("Lon")   
+
 	}
 	Salida
 	
     } 
 
-    //def heuristicStimateOfDistance(a: List[Int], b: List[Int]) = minCost * (Math.abs(a(0) - b(0)) + Math.abs(a(1) - b(1)))
     def heuristicStimateOfDistance(aI : String, bI: String): Double = {
 
-/*		var a = DataConnection.cassandra.ColumnFamily("Standard1")(aI)
-		var b = DataConnection.cassandra.ColumnFamily("Standard1")(bI)	
-		var r = minCost * (Math.abs(a("Lat").toDouble - b("Lat").toDouble) + Math.abs(a("Lon").toDouble - b("Lon").toDouble))
-		r
-*/
-		val f = DataConnection.cassandra.ColumnFamily("Standard1")(aI)
-		val t = DataConnection.cassandra.ColumnFamily("Standard1")(bI)
+		val f = DataConnection.cassandra.ColumnFamily("Coordenadas")(aI)
+		val t = DataConnection.cassandra.ColumnFamily("Coordenadas")(bI)
 		
 		var dlong = f("Lon").toDouble - t("Lon").toDouble
 
@@ -158,7 +153,7 @@ class AStar(var minCost: Double){
 
 //                    var currentNode:Node = new Node(i.next)
 //		    println("Hijo " + currentNode.dbId)
-                    var dist:Double = DataConnection.cassandra.SuperColumnFamily("Super1")(x.dbId.toString)(currentNode.dbId.toString)(hora.toString).toDouble
+                    var dist:Double = DataConnection.cassandra.SuperColumnFamily("Trafico")(x.dbId.toString)(currentNode.dbId.toString)(hora.toString).toDouble
 
                     if(closedset.contains(currentNode.dbId) == false){			
                     	var tgScore = x.gScore + dist

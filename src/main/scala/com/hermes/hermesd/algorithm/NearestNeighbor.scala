@@ -14,7 +14,7 @@ object NearestNeighbor{
       )
       val cassandra = new Client(
         Connection("127.0.0.1", 9160),
-        "Keyspace1",
+        "Hermes",
         serialization,
         ConsistencyLevels.one
       )
@@ -28,7 +28,7 @@ object NearestNeighbor{
 
 	def find(entryPoint: Map[String,String], error: Double): String = {
 	
-		var Iterator = cassandra.ColumnFamily("Standard1").filter(s => Math.sqrt(Math.pow(s._2("Lat").toDouble - entryPoint("Lat").toDouble ,2) + 
+		var Iterator = cassandra.ColumnFamily("Coordenadas").filter(s => Math.sqrt(Math.pow(s._2("Lat").toDouble - entryPoint("Lat").toDouble ,2) + 
         	Math.pow(s._2("Lon").toDouble - entryPoint("Lon").toDouble ,2)) < error).asInstanceOf[ArrayBuffer[(String, StandardRecord[String,String,String])]]	
 	
 		var size = Iterator.size

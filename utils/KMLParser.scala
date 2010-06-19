@@ -13,9 +13,7 @@ val serialization = new Serialization(
 
 val cassandra = new Client(Connection("127.0.0.1", 9160),"Hermes", serialization, ConsistencyLevels.one)
 
-if(cassandra.ColumnFamily("Intersecciones")("DB")("0").size == 0){
-	cassandra.ColumnFamily("Intersecciones")("DB")("0") = "0"
-}
+cassandra.ColumnFamily("Intersecciones")("DB")("0") = "0"
 
 if (args.length == 0) println("Se necesita enviar el nombre del archivo como argumento")
 else{

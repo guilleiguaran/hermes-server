@@ -54,11 +54,14 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
 			var coordLats = new ArrayList[String]
 			var coordLons = new ArrayList[String]
 			
-			var a = new AStar(20.0)
+		//	var a = new AStar(20.0)
 			var hour = 1
-			var rutaString = a.calculatePath( Map("Lat"->start.split("_")(0),"Lon"-> start.split("_")(1)), Map("Lat"->end.split("_")(0),"Lon"-> end.split("_")(1)),hour) 
+		//	var rutaString = a.calculatePath( Map("Lat"->start.split("_")(0),"Lon"-> start.split("_")(1)), Map("Lat"->end.split("_")(0),"Lon"-> end.split("_")(1)),hour) 
+			var a = new Dijkstra()
+			var rutaString = a.algorithm(Map("Lat"->start.split("_")(0),"Lon"-> start.split("_")(1)), Map("Lat"->end.split("_")(0),"Lon"-> end.split("_")(1)),hour)
+
 			var rutaList = rutaString.split(";")
-			for(i<-0 to rutaList.size - 1){
+			for(i<-1 to rutaList.size - 1){
 				coordLats.add(rutaList(i).split("_")(0))
 				coordLons.add(rutaList(i).split("_")(1))
 			}
@@ -80,7 +83,8 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
         		log.info("Action: rutas") 
 			var coordLats = new ArrayList[String]
 			var coordLons = new ArrayList[String]
-			var a = new AStar(1.0)                	
+			//var a = new AStar(1.0)                	
+			var a = new Dijkstra()			
 			var salida = a.getAllNodes()
 			
 			var salidaList = salida.split(";")

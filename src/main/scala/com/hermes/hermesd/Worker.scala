@@ -57,10 +57,13 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
 		//	var a = new AStar(20.0)
 			var hour = 1
 		//	var rutaString = a.calculatePath( Map("Lat"->start.split("_")(0),"Lon"-> start.split("_")(1)), Map("Lat"->end.split("_")(0),"Lon"-> end.split("_")(1)),hour) 
+			var time = 0.0
 
 			if(action == "dijkstra"){
 				var a = new Dijkstra()
-				var rutaString = a.algorithm(Map("Lat"->start.split("_")(0),"Lon"-> start.split("_")(1)), Map("Lat"->end.split("_")(0),"Lon"-> end.split("_")(1)),hour)
+				var result = a.algorithm(Map("Lat"->start.split("_")(0),"Lon"-> start.split("_")(1)), Map("Lat"->end.split("_")(0),"Lon"-> end.split("_")(1)),hour)
+				var rutaString = result._1
+				time = result._2
 				var rutaList = rutaString.split(";")
 				for(i<-1 to rutaList.size - 1){
 					coordLats.add(rutaList(i).split("_")(0))
@@ -69,7 +72,9 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
 			}
 			else if(action == "astar"){
 				var a = new AStar(20.0)
-				var rutaString = a.calculatePath( Map("Lat"->start.split("_")(0),"Lon"-> start.split("_")(1)), Map("Lat"->end.split("_")(0),"Lon"-> end.split("_")(1)),hour)
+				var result = a.calculatePath( Map("Lat"->start.split("_")(0),"Lon"-> start.split("_")(1)), Map("Lat"->end.split("_")(0),"Lon"-> end.split("_")(1)),hour)
+				var rutaString = result._1
+				time = result._2
 				var rutaList = rutaString.split(";")
 				for(i<-1 to rutaList.size - 1){
 					coordLats.add(rutaList(i).split("_")(0))
@@ -78,14 +83,15 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
 			}
 			
 
-			
-			var response = "{\"coordinates\": ["
+			var strTime = "\"time\": \""+time+"\","
+			var response = "{"+strTime+"\"coordinates\": ["
 			
 			for(i<-0 to coordLats.size()-2){
 				response = response + "{\"lat\": \""+ coordLats.get(i) +"\", \"lon\": \""+ coordLons.get(i) +"\"},"
 			}
 			response = response + "{\"lat\": \""+ coordLats.get(coordLats.size()-1) +"\", \"lon\": \""+ coordLons.get(coordLats.size()-1) +"\"}"
 			response = response + "]}"
+			println(response)
 			
             val HttpResponse = composeHTTPResponse(response)
             writer.write(HttpResponse.getBytes())

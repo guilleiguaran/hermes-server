@@ -36,12 +36,12 @@ class Dijkstra(){
 	Salida
     }
     
-    def algorithm(start: Map[String, String], goal: Map[String, String], hora: Int): String = {
+    def algorithm(start: Map[String, String], goal: Map[String, String], hora: Int): (String, Double) = {
         var startId = NearestNeighbor.find(start,0.0001)
 	var endId = NearestNeighbor.find(goal,0.0001)
 
-//	println("startId:" + startId)
-//	println("endId:" + endId)
+	println("startId:" + startId)
+	println("endId:" + endId)
 
 	var distancia = new HashMap[String, Double]()
 	var novistos = Set[String]()
@@ -95,12 +95,12 @@ class Dijkstra(){
 	//DataConnection.cassandra.ColumnFamily("Coordenadas")(dbId)("Lat") + "_" +  DataConnection.cassandra.ColumnFamily("Coordenadas")(dbId)("Lon")  
 	var current = endId
 	while(current != "NONE"){
-	//	println(current)
+		println(current)
 		salida = salida + ";" + DataConnection.cassandra.ColumnFamily("Coordenadas")(current)("Lat") + "_" + DataConnection.cassandra.ColumnFamily("Coordenadas")(current)("Lon")  
 		current = padre(current)
 	}
 	//println(salida)
-	return salida
+	return (salida, distancia(endId))
     } 
     
 
@@ -152,14 +152,14 @@ class AStar(var minCost: Double){
 
 	}
 	Salida
-
+	
     } 
 
     def heuristicStimateOfDistance(aI : String, bI: String): Double = {
 
 		val f = DataConnection.cassandra.ColumnFamily("Coordenadas")(aI)
 		val t = DataConnection.cassandra.ColumnFamily("Coordenadas")(bI)
-
+		
 		var dlong = f("Lon").toDouble - t("Lon").toDouble
 
 		var degtorad = 0.01745329
@@ -178,23 +178,24 @@ class AStar(var minCost: Double){
     def buildPath(current: Node): String = {
 	println(current.dbId)	
 	if (current.cameFrom != null){
-
+			
 			return buildPath(current.cameFrom)  + ";" +current.aString(false)
         }
 	else {
-            return current.aString(false)
+	    println("se metio al else: "+current.aString(false))
+            return ";"+current.aString(false)
         }   
     }
     
     def vecinos(nodo: Node, hora: Int, fin: String):ArrayList[Node]={
         var i = nodo.getNeighbors();
-	println("Expandiendo")
+	//println("Expandiendo Nodo "+nodo.dbId)
 	var lista = new ArrayList[Node]()
         
         while(i.hasNext) {
-
+	    
 	    var currentNode = new Node(i.next, nodo)
-	    println("nodo: "+currentNode.dbId)
+	    //println("hijos: "+currentNode.dbId)
 	    var dist:Double = DataConnection.cassandra.SuperColumnFamily("Trafico")(nodo.dbId.toString)(currentNode.dbId.toString)(hora.toString).toDouble
 	    currentNode.gScore = nodo.gScore + dist
 	    currentNode.hScore = heuristicStimateOfDistance(currentNode.dbId, fin)
@@ -213,13 +214,12 @@ class AStar(var minCost: Double){
 	   if(cerrada.contains(hijoActual.dbId) == false){
 
 	    if(abiertahashmap.contains(hijoActual.dbId) == false){
-
 		abierta.add(hijoActual)
 		abiertahashmap(hijoActual.dbId) = hijoActual
 	     }
 	     else{
 		var nodoEnAbierta = abiertahashmap(hijoActual.dbId)	
-
+		
 		if(hijoActual.gScore < nodoEnAbierta.gScore){
 			abierta.remove(nodoEnAbierta)
 			nodoEnAbierta.gScore = hijoActual.gScore
@@ -232,43 +232,48 @@ class AStar(var minCost: Double){
       
     }
 
-    def calculatePath(start: Map[String, String], goal: Map[String, String], hora: Int): String = {
+    def calculatePath(start: Map[String, String], goal: Map[String, String], hora: Int): (String, Double) = {
 
 	var closedset = new HashMap[String, Node]()
  	var openset = new PriorityQueue[Node]()
 	var opensethashmap = new HashMap[String, Node]()
         var startId = NearestNeighbor.find(start,0.0001)
 	var endId = NearestNeighbor.find(goal,0.0001)
-
-	println("Meta :" + endId)
+325.7649091554914
 	println("Inicio:" + startId)
+	println("Meta :" + endId)
 	var NodoInicio = new Node(startId, null)
 	NodoInicio.hScore = heuristicStimateOfDistance(startId, endId)
 	NodoInicio.fScore = NodoInicio.gScore + NodoInicio.hScore
 	//var NodoFin = new Node(endId, null)
-
+	
 	// Añade el nodo inicial a la lista cerrada.
 	closedset(startId) = NodoInicio
-
+	
 	//openset.addAll(vecinos(NodoInicio, hora, NodoFin))
          var hijosDeInicio = vecinos(NodoInicio, hora, endId)
-	 gestionarVecinos(hijosDeInicio, openset, opensethashmap, closedset)
+	 
+	 for(i<-0 to hijosDeInicio.size - 1){
+	   var hijoI = hijosDeInicio.get(i).asInstanceOf[Node]
+	   openset.add(hijoI)
+	   opensethashmap(hijoI.dbId) = hijoI
+	 }
+	 //gestionarVecinos(hijosDeInicio, openset, opensethashmap, closedset)
 
-	while(opensethashmap.contains(endId) || openset.isEmpty == false){
-
+	//while(opensethashmap.contains(endId) || openset.isEmpty == false){
+	while(openset.isEmpty == false){ 	  
 	  var x:Node = openset.poll()
 	  opensethashmap.removeKey(x.dbId)
-	  println("X ES " + x.dbId)
 	  closedset(x.dbId) = x
 	  var hijosdeX = vecinos(x, hora, endId)
 	  gestionarVecinos(hijosdeX, openset, opensethashmap, closedset)
-	  println("tamaño openset: "+openset.size)
-	  println("tamaño openset: "+opensethashmap.size)
-	  println("tamaño closedset: "+closedset.size)	  	
+	  	
 	}
-
-	  return buildPath(closedset(endId))
-
+	  var ruta = buildPath(closedset(endId))
+	  println("la ruta es: "+ruta+" con costo: "+closedset(endId).gScore)
+	  return (ruta, closedset(endId).gScore)
+	
     }
 
 }
+

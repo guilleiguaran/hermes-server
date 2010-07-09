@@ -58,7 +58,7 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
 			var hour = 1
 		//	var rutaString = a.calculatePath( Map("Lat"->start.split("_")(0),"Lon"-> start.split("_")(1)), Map("Lat"->end.split("_")(0),"Lon"-> end.split("_")(1)),hour) 
 			var time = 0.0
-
+			var distance = 0.0
 			if(action == "dijkstra"){
 				var a = new Dijkstra()
 				var result = a.algorithm(Map("Lat"->start.split("_")(0),"Lon"-> start.split("_")(1)), Map("Lat"->end.split("_")(0),"Lon"-> end.split("_")(1)),hour)
@@ -82,8 +82,9 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
 				}
 			}
 			
-
+			distance = (time/3600)*30
 			var strTime = "\"time\": \""+time+"\","
+			var strDistance = "\"distance\": \""+distance+"\","
 			var response = "{"+strTime+"\"coordinates\": ["
 			
 			for(i<-0 to coordLats.size()-2){

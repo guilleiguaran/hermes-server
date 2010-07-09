@@ -85,7 +85,7 @@ class Worker(val id: Int, val dispatcher: Dispatcher) extends Actor{
 			distance = (time/3600)*30
 			var strTime = "\"time\": \""+time+"\","
 			var strDistance = "\"distance\": \""+distance+"\","
-			var response = "{"+strTime+"\"coordinates\": ["
+			var response = "{"+strTime+strDistance+"\"coordinates\": ["
 			
 			for(i<-0 to coordLats.size()-2){
 				response = response + "{\"lat\": \""+ coordLats.get(i) +"\", \"lon\": \""+ coordLons.get(i) +"\"},"
